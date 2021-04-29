@@ -2,8 +2,10 @@
   "name": "valsugana-api",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "./src/index.js",
   "scripts": {
+    "migration-dev": "NODE_ENV=development npx sequelize-cli db:migrate",
+    "dev": "NODE_ENV=development ndb  node ./src/index.js ",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
