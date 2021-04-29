@@ -1,33 +1,27 @@
 'use strict';
 module.exports = {
   up: async (queryInterface, Sequelize) => {
-    await queryInterface.createTable('PESSOAS_FISICAS', {
+    await queryInterface.createTable('DANCARINOS', {
       id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.BIGINT
       },
-      responsavelId: {
+      pessoaFisicaId: {
         type: Sequelize.BIGINT,
         references: {
           model: 'PESSOAS_FISICAS',
           key: 'id'
         }
       },
-      nome: {
+      fl_desabilitado: {
+        type: Sequelize.BOOLEAN
+      },
+      descricao: {
         type: Sequelize.STRING
       },
-      cpf: {
-        type: Sequelize.STRING
-      },
-      endereco: {
-        type: Sequelize.STRING
-      },
-      telefone: {
-        type: Sequelize.STRING
-      },
-      dataNascimento: {
+      vigencia: {
         type: Sequelize.DATE
       },
       createdAt: {
@@ -41,6 +35,6 @@ module.exports = {
     });
   },
   down: async (queryInterface, Sequelize) => {
-    await queryInterface.dropTable('PESSOAS_FISICAS');
+    await queryInterface.dropTable('DANCARINOS');
   }
 };
