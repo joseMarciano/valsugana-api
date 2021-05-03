@@ -1,7 +1,6 @@
 'use strict';
 const { Model } = require('sequelize');
-const PessoaFisica = require('./PessoaFisica');
-
+const Chamada = require('./Chamada');
 module.exports = (sequelize, DataTypes) => {
     class DancarinoChamada extends Model {
 
@@ -15,6 +14,12 @@ module.exports = (sequelize, DataTypes) => {
             autoIncrement: true,
             primaryKey: true,
             type: DataTypes.BIGINT
+        },
+        chamadaId: {
+            type: DataTypes.BIGINT,
+            references: {
+                model: Chamada(sequelize, DataTypes)
+            }
         },
         observacao: DataTypes.STRING,
         presente: {

@@ -17,16 +17,17 @@ module.exports = {
       },
       chamadaId: {
         type: Sequelize.BIGINT,
+        onDelete: 'cascade',
         references: {
           model: 'CHAMADAS',
           key: 'id'
         }
       },
-      descricao: {
-        type: Sequelize.STRING
+      fl_presente:{
+        type: Sequelize.BOOLEAN,
       },
-      vigencia: {
-        type: Sequelize.DATE
+      observacao: {
+        type: Sequelize.STRING
       }
     });
   },

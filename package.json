@@ -5,7 +5,8 @@
   "main": "./src/index.js",
   "scripts": {
     "migration-dev": "NODE_ENV=development npx sequelize-cli db:migrate",
-    "dev": "NODE_ENV=development ndb  node ./src/index.js ",
+    "dev-d": "NODE_ENV=development ndb  node ./src/index.js ",
+    "dev": "NODE_ENV=development nodemon ./src/index.js ",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
@@ -20,6 +21,7 @@
     "sequelize-cli": "^6.2.0"
   },
   "devDependencies": {
-    "ndb": "^1.1.5"
+    "ndb": "^1.1.5",
+    "nodemon": "^2.0.7"
   }
 }
