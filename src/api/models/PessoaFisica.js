@@ -32,6 +32,7 @@ module.exports = (sequelize, DataTypes) => {
       notNullValues() { Specification.notNullValues(this) },
       async hasUniqueCPF() { await Specification.hasUniqueCPF(this) },
       menorHasResponsavel() { Specification.menorHasResponsavel(this) },
+      async responsavelIsMaiorIdade() { await Specification.responsavelIsMaiorIdade(this) },
     },
     modelName: 'PessoaFisica',
     tableName: 'PESSOAS_FISICAS'
@@ -70,11 +71,25 @@ class Specification {
   static menorHasResponsavel(entity) {
     if (!entity.dataNascimento) return;
 
-    const diffYears =
+    const diffDays =
       differenceInCalendarDays(new Date(), new Date(entity.dataNascimento));
 
-    if ((diffYears / 365) < 18 && !entity.responsavelId)
+    if ((diffDays / 365) < 18 && !entity.responsavelId)
       throw new ValidationException('Para pessoa física menor de 18 anos, é obrigatório informar um responsável');
+
+  }
+  static async responsavelIsMaiorIdade(entity) {
+    if (!entity.responsavelId) return;
+    const service = this._getService();
+
+    const responsavel = await service.findById(entity.responsavelId);
+
+    const diffYears =
+      differenceInCalendarDays(new Date(), new Date(responsavel.dataNascimento));
+
+
+    if ((diffYears / 365) < 18)
+      throw new ValidationException('O responsável deve ser maior de idade.');
 
   }
 
