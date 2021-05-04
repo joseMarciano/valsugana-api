@@ -1,5 +1,8 @@
 'use strict';
-const { Model} = require('sequelize');
+const { Model } = require('sequelize');
+const ValidationException = require('../handler/ValidationException');
+const differenceInCalendarDays = require('date-fns/differenceInCalendarDays');
+const _ = require('lodash');
 
 module.exports = (sequelize, DataTypes) => {
   class PessoaFisica extends Model {
@@ -12,7 +15,7 @@ module.exports = (sequelize, DataTypes) => {
     }
   };
   PessoaFisica.init({
-    responsavelId:{
+    responsavelId: {
       type: DataTypes.BIGINT,
       references: {
         model: this,
@@ -25,8 +28,54 @@ module.exports = (sequelize, DataTypes) => {
     dataNascimento: DataTypes.DATE
   }, {
     sequelize,
+    validate: {
+      notNullValues() { Specification.notNullValues(this) },
+      async hasUniqueCPF() { await Specification.hasUniqueCPF(this) },
+      menorHasResponsavel() { Specification.menorHasResponsavel(this) },
+    },
     modelName: 'PessoaFisica',
     tableName: 'PESSOAS_FISICAS'
   });
   return PessoaFisica;
 };
+/* -------------------------------------------------------------------------------- */
+
+
+const notNullValues = new Map([
+  ['nome', 'É obrigatório informar o campo nome.'],
+  ['cpf', 'É obrigatório informar o campo cpf.'],
+  ['dataNascimento', 'É obrigatório informar o campo data de nascimento.'],
+]);
+class Specification {
+
+  static async _getService() {
+    return await require('../service/PessoaFisicaService');
+  }
+
+  static notNullValues(entity) {
+    for (const [key, value] of notNullValues) {
+      if (!entity[key]) throw new ValidationException(value);
+    }
+  }
+
+  static async hasUniqueCPF(entity) {
+    if (!entity.cpf) return;
+
+    const service = await this._getService();
+    const list = await service.list({ where: { cpf: entity.cpf }, raw: true });
+    if (!_.isEmpty(list)) throw new ValidationException(`Já existe uma pessoa com o CPF informado.`)
+
+  }
+
+  static menorHasResponsavel(entity) {
+    if (!entity.dataNascimento) return;
+
+    const diffYears =
+      differenceInCalendarDays(new Date(), new Date(entity.dataNascimento));
+
+    if ((diffYears / 365) < 18 && !entity.responsavelId)
+      throw new ValidationException('Para pessoa física menor de 18 anos, é obrigatório informar um responsável');
+
+  }
+
+}
