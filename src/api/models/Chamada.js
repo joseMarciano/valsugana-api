@@ -12,6 +12,9 @@ module.exports = (sequelize, DataTypes) => {
                 as: 'chamadasDancarinos',
                 foreignKey: 'chamadaId'
             });
+            //FAZER MAPEAMENTO CORRETO ENTRE ENSAIO E ENSAIOS_DANCARINOS
+            //CRIAR SEEDERS PRA FACILITAR O DESENVOLVIMENTO
+            //chamada belongsTo Ensaio
         }
     };
 
