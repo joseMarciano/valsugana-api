@@ -1,22 +1,22 @@
 const _ = require('lodash');
 
 const exceptionsToResolve = new Map([
-    ['SequelizeValidationError', { status: 422, callback: resolveSequelizeValidation }]
+    ['SequelizeValidationError', { status: 422, callback: resolveSequelizeValidation }],
+    ['ValidationException', { status: 422, callback: resolveCommonException }],
+    ['EntityNotFoundException', { status: 422, callback: resolveCommonException}],
+    ['SequelizeForeignKeyConstraintError', { status: 422, callback: resolveConstraintException}]
 ])
 
 
 
 module.exports = (error, req, res, next) => {
-    let status = 500, message = 'Ocorreu um erro interno no servidor.';
+    let status = 500,message = 'Ocorreu um erro interno no servidor.';
 
-    for (const [key, value] of exceptionsToResolve) {
-        const currentException = exceptionsToResolve.get(error.name);
-        if (currentException) {
-            status = value.status;
-            message = error.message;
-            if (error.name === 'SequelizeValidationError') message = value.callback(error);
-            break;
-        }
+    const currentException = exceptionsToResolve.get(error.name);
+
+    if(currentException){
+        status = currentException.status;
+        message = currentException.callback(error)
     }
 
     console.error(error);
@@ -25,6 +25,14 @@ module.exports = (error, req, res, next) => {
 
 function resolveSequelizeValidation({ errors }) {
     return errors[0].message;
+}
+
+function resolveCommonException(error) {
+    return error.message;
+}
+
+function resolveConstraintException(error) {
+    return 'Não foi possível deletar pois essa entidade está em uso.';
 }
 
 function resp(res, status, message) {

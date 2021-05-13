@@ -1,12 +1,15 @@
-
+const defaultOptions = {
+    attributes: {
+        exclude: ['createdAt','updatedAt']
+    }
+}
 class Repository {
 
     static async findAll(model, options = {}) {
-        options = parseOptions(options);
         return await model.findAll(options);
     }
-    static async findById(model, idModel) {
-        return await model.findByPk(idModel);
+    static async findById(model, idModel, options = {}) {
+        return await model.findByPk(idModel, options); 
     }
 
     static async save(model, values, options = {}) {
@@ -18,7 +21,6 @@ class Repository {
     }
 
     static async pagination(model, options = {}) {
-        options = parseOptions(options);
         const result = await model.findAndCountAll({ ...options, order: [['id', 'DESC']] });
         return parsePagination(result, options);
     }
@@ -39,14 +41,6 @@ function parsePagination({ count, rows }, { offset = 0, limit = 10, sort = {} })
     }
 }
 
-function parseOptions(options = {}) {
-    if (typeof options === 'string' && options.length > 0)
-        options = JSON.parse(options);
 
-    if (typeof options === 'string' && options.length === 0)
-        options = {};
-
-    return options;
-}
 
 module.exports = Repository;

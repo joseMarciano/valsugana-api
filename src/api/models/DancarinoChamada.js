@@ -1,6 +1,7 @@
 'use strict';
 const { Model } = require('sequelize');
-const Chamada = require('./Chamada');
+const ValidationException = require('../handler/ValidationException');
+
 module.exports = (sequelize, DataTypes) => {
     class DancarinoChamada extends Model {
 
@@ -15,12 +16,6 @@ module.exports = (sequelize, DataTypes) => {
             primaryKey: true,
             type: DataTypes.BIGINT
         },
-        chamadaId: {
-            type: DataTypes.BIGINT,
-            references: {
-                model: Chamada(sequelize, DataTypes)
-            }
-        },
         observacao: DataTypes.STRING,
         presente: {
             type: DataTypes.BOOLEAN,
@@ -29,9 +24,48 @@ module.exports = (sequelize, DataTypes) => {
         }
     }, {
         sequelize,
+        validate: {
+            notNullValues() { Specification.notNullValues(this) },
+            async existsEnsaioDancarino() { await Specification.existsEnsaioDancarino(this) },
+            async existsChamada() { await Specification.existsChamada(this) },
+        },
         modelName: 'DancarinoChamada',
         tableName: 'DANCARINOS_CHAMADAS',
         timestamps: false
     });
     return DancarinoChamada;
 };
+
+
+const notNullValues = new Map([
+    ['ensaioDancarinoId', 'É obrigatório informar o dancarino.'],
+    ['chamadaId', 'É obrigatório informar a chamada.'],
+]);
+class Specification {
+
+    static async _getService(ServiceName) {
+        return await require(`../service/${ServiceName}`);
+    }
+
+    static notNullValues(entity) {
+        for (const [key, value] of notNullValues) {
+            if (!entity[key]) throw new ValidationException(value);
+        }
+    }
+
+    static async existsEnsaioDancarino(entity) {
+        const ensaioDancarinoService = await this._getService('EnsaioDancarinoService');
+        if (!entity.ensaioDancarinoId) return;
+
+        try {
+            await ensaioDancarinoService.findById(entity.ensaioDancarinoId);
+        } catch (error) {
+            throw new ValidationException('O dançarino informado na chamada deve estar vinculado ao ensaio.');
+        }
+
+    }
+
+    static async existsChamada(entity) {
+        // TODO FAZER VALIDAÇÃO PARA VER SE A CHAMADA QUE ESTÁ SENDO PASSADA REALEMNTE EXISTE
+    }
+}

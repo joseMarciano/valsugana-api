@@ -8,20 +8,20 @@ module.exports = {
         primaryKey: true,
         type: Sequelize.BIGINT
       },
-      dancarinoId: {
+      ensaioDancarinoId: {
         type: Sequelize.BIGINT,
         references: {
-          model: 'DANCARINOS',
+          model: 'ENSAIOS_DANCARINOS',
           key: 'id'
         }
       },
       chamadaId: {
         type: Sequelize.BIGINT,
-        onDelete: 'cascade',
         references: {
           model: 'CHAMADAS',
           key: 'id'
-        }
+        },
+        onDelete: 'cascade'
       },
       fl_presente:{
         type: Sequelize.BOOLEAN,
