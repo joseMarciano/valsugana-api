@@ -7,9 +7,13 @@ const _ = require('lodash');
 module.exports = (sequelize, DataTypes) => {
   class PessoaFisica extends Model {
 
+    get isNew() {
+      return !this.id;
+    }
+
     static associate(models) {
       this.belongsTo(models.PessoaFisica, {
-        as: 'responsavel',
+        as: 'responsavelPessoaFisica',
         foreignKey: 'responsavelId'
       });
     }
@@ -41,7 +45,7 @@ module.exports = (sequelize, DataTypes) => {
 };
 /* -------------------------------------------------------------------------------- */
 
-
+const { Op } = require('sequelize');
 const notNullValues = new Map([
   ['nome', 'É obrigatório informar o campo nome.'],
   ['cpf', 'É obrigatório informar o campo cpf.'],
@@ -62,8 +66,11 @@ class Specification {
   static async hasUniqueCPF(entity) {
     if (!entity.cpf) return;
 
+    let filter = { where: { cpf: entity.cpf } };
+
+    if (!entity.isNew) filter.where.id = { [Op.ne]: entity.id }
     const service = await this._getService();
-    const list = await service.list({ where: { cpf: entity.cpf }, raw: true });
+    const list = await service.list({ ...filter, raw: true });
     if (!_.isEmpty(list)) throw new ValidationException(`Já existe uma pessoa com o CPF informado.`)
 
   }
@@ -80,7 +87,7 @@ class Specification {
   }
   static async responsavelIsMaiorIdade(entity) {
     if (!entity.responsavelId) return;
-    const service = this._getService();
+    const service = await this._getService();
 
     const responsavel = await service.findById(entity.responsavelId);
 

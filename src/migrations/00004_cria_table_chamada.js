@@ -13,7 +13,8 @@ module.exports = {
         references: {
           model: 'ENSAIOS',
           key: 'id'
-        }
+        },
+        onDelete: 'cascade'
       },
       descricao: {
         type: Sequelize.STRING,

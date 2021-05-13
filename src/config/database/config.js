@@ -18,10 +18,21 @@ module.exports = {
     }
   },
   production: {
-    username: "root",
-    password: null,
-    database: "database_production",
-    host: "127.0.0.1",
-    dialect: "mysql"
+    username: process.env.DB_USER_NAME,
+    password: process.env.DB_USER_PASSWORD,
+    database: process.env.DB,
+    host: process.env.DB_HOST,
+    dialect: process.env.DB_DIALECT,
+
+    schema: process.env.DB_SCHEMA,
+    searchPath: process.env.DB_SEARCH_PATH,
+    dialectOptions: {
+      prependSearchPath: true
+    },
+    define: {
+      freezeTableName: true,
+      timestamps: true,
+      chartSet: 'utf8'
+    }
   }
 }

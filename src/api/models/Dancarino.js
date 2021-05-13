@@ -7,17 +7,22 @@ const PessoaFisica = require('./PessoaFisica');
 module.exports = (sequelize, DataTypes) => {
     class Dancarino extends Model {
 
+        get isNew() {
+            return !this.id;
+        }
+
         static associate(models) {
             this.belongsTo(models.PessoaFisica, {
-                as: 'pessoaFisica',
+                as: 'pessoaFisicaDancarino',
                 foreignKey: 'pessoaFisicaId'
             });
-            this.belongsToMany(models.Chamada, {
+
+            this.belongsToMany(models.Ensaio, {
                 through: {
-                    model: models.DancarinoChamada
+                    model: models.EnsaioDancarino
                 },
                 foreignKey: 'dancarinoId',
-                as: 'chamadasDancarinos'
+                as: 'ensaiosDancarino'
             });
         }
     };
@@ -40,6 +45,7 @@ module.exports = (sequelize, DataTypes) => {
         sequelize,
         validate: {
             notNullValues() { Specification.notNullValues(this) },
+            async existsPessoaFisica() { await Specification.existsPessoaFisica(this) },
             async hasUniquePessoaFisica() { await Specification.hasUniquePessoaFisica(this) }
         },
         modelName: 'Dancarino',
@@ -49,7 +55,7 @@ module.exports = (sequelize, DataTypes) => {
 };
 
 
-
+const { Op } = require('sequelize');
 const notNullValues = new Map([
     ['pessoaFisicaId', 'É obrigatório informar uma pessoa física.'],
     ['vigencia', 'É obrigatório informar a vigência.'],
@@ -57,8 +63,8 @@ const notNullValues = new Map([
 ]);
 class Specification {
 
-    static async _getService() {
-        return await require('../service/DancarinoService');
+    static async _getService(Service) {
+        return await require(`../service/${Service}`);
     }
 
     static notNullValues(entity) {
@@ -67,12 +73,22 @@ class Specification {
         }
     }
 
-    static async hasUniquePessoaFisica(entity) {
+    static async existsPessoaFisica(entity) {
         if (!entity.pessoaFisicaId) return;
 
-        const service = await this._getService();
-        const list =
-            await service.list({ where: { pessoaFisicaId: entity.pessoaFisicaId }, raw: true });
+        const service = await this._getService('PessoaFisicaService');
+        await service.findById(entity.pessoaFisicaId);
+
+    }
+
+    static async hasUniquePessoaFisica(entity) {
+        if (!entity.pessoaFisicaId) return;
+        let filter = { where: { pessoaFisicaId: entity.pessoaFisicaId } };
+
+        if (!entity.isNew) filter.where.id = { [Op.ne]: entity.id }
+
+        const service = await this._getService('DancarinoService');
+        const list = await service.list({ ...filter, raw: true });
         if (!_.isEmpty(list)) throw new ValidationException(`Já existe um dançarino com a pessoa física informada.`);
     }
 }

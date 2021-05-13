@@ -1,14 +1,27 @@
 const repository = require('../models/repository/Repository');
 const { Dancarino } = require('../models/index');
-
+const EntityNotFoundException = require('../handler/EntityNotFoundException');
+const DancarinoRepresentation = require('../models/representation/DancarinoRepresentation');
+const parseOptions = require('../../utils/parseOptions');
+const { Op } = require('sequelize');
 class DancarinoService {
 
-    static async list(options = {}) {
+    static async list({ options = {}, vigencia = null }) {
+        options = { ...parseOptions(options), ...DancarinoRepresentation.listagem() };
+
+        if (!options.where && vigencia) options.where = { vigencia: { [Op.lte]: vigencia } };
+        else if (options.where && vigencia) options.where = { ...options.where, vigencia: { [Op.lte]: vigencia } }
+        
         return await repository.findAll(Dancarino, options);
     }
 
     static async findById(idDancarino) {
-        return await repository.findById(Dancarino, idDancarino);
+        const options = { ...DancarinoRepresentation.completa() }
+        const dancarino = await repository.findById(Dancarino, idDancarino, options);
+
+        if (!dancarino) throw new EntityNotFoundException('Dançarino não encontrado.')
+
+        return dancarino;
     }
 
     static async save(dancarinoFields) {
@@ -19,7 +32,13 @@ class DancarinoService {
         return await repository.update(Dancarino, dancarino, options);
     }
 
-    static async pagination(options = {}) {
+    static async pagination({options = {}, vigencia = null}) {
+        options = { ...parseOptions(options), ...DancarinoRepresentation.listagem() };
+
+        if (!options.where && vigencia) options.where = { vigencia: { [Op.lte]: vigencia } };
+        else if (options.where && vigencia) options.where = { ...options.where, vigencia: { [Op.lte]: vigencia } }
+        
+
         return await repository.pagination(Dancarino, options);
     }
 
