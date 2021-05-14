@@ -7,8 +7,6 @@
     "migration-dev": "NODE_ENV=development npx sequelize-cli db:migrate",
     "dev-d": "NODE_ENV=development ndb node ./src/index.js ",
     "dev": "NODE_ENV=development  nodemon ./src/index.js ",
-    "start": "NODE_ENV=production node ./src/index.js",
-    "migration": "NODE_ENV=production npx sequelize-cli db:migrate",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
