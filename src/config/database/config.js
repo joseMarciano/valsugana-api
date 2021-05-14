@@ -27,6 +27,9 @@ module.exports = {
     schema: process.env.DB_SCHEMA,
     searchPath: process.env.DB_SEARCH_PATH,
     dialectOptions: {
+      ssl:{
+        rejectUnauthorized: false
+      },
       prependSearchPath: true
     },
     define: {
