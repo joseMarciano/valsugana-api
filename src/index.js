@@ -4,7 +4,7 @@ const mainRoute = require('./api/routes');
 (async function () {
     server
         .use('/api', mainRoute)
-        .listen(3000, () => console.log('Server is running'))
+        .listen(process.env.PORT || 3000, () => console.log('Server is running'))
 
 
 })()
