@@ -2,7 +2,7 @@
 
 
 ### :book: Descrição 
-#####  O presente projeto foi desenvolvido na aula de soluções web I com o professor [Lucas Ferreira](https://github.com/lucasferreira). O objetivo é a necessidade de um grupo de dança sem fins lucrativos. 
+#####  O presente projeto foi desenvolvido na aula de soluções web I com o professor [Lucas Ferreira](https://github.com/lucasferreira). O objetivo é atender à necessidade de um grupo de dança sem fins lucrativos. 
 #####  A ideia inicial é que o administrador do sistema consiga realizar cadastros de dançarinos, ensaios e realizar chamadas.
 
 ### :computer: Tecnologias utilizadas 
