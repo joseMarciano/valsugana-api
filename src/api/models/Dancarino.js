@@ -88,7 +88,7 @@ class Specification {
         if (!entity.isNew) filter.where.id = { [Op.ne]: entity.id }
 
         const service = await this._getService('DancarinoService');
-        const list = await service.list({ ...filter, raw: true });
+        const list = await service.list({options:{ ...filter, raw: true }});
         if (!_.isEmpty(list)) throw new ValidationException(`Já existe um dançarino com a pessoa física informada.`);
     }
 }
